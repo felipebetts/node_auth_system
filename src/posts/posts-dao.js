@@ -1,36 +1,31 @@
 const db = require('../../database');
 
+const { promisify } = require('util')
+const dbRun = promisify(db.run).bind(db)
+const dbAll = promisify(db.all).bind(db)
+
 module.exports = {
-  adiciona: post => {
-    return new Promise((resolve, reject) => {
-      db.run(
+  adiciona: async post => {
+    try {
+      await dbRun(
         `
         INSERT INTO posts (
           titulo, 
           conteudo
         ) VALUES (?, ?)
       `,
-        [post.titulo, post.conteudo],
-        erro => {
-          if (erro) {
-            return reject('Erro ao adicionar o post!');
-          }
-
-          return resolve();
-        }
+        [post.titulo, post.conteudo]
       );
-    });
+    } catch (error) {
+      throw new Error('Erro ao adicionar o post!')
+    }
   },
 
-  lista: () => {
-    return new Promise((resolve, reject) => {
-      db.all(`SELECT * FROM posts`, (erro, resultados) => {
-        if (erro) {
-          return reject('Erro ao listar os posts!');
-        }
-
-        return resolve(resultados);
-      });
-    });
+  lista: async () => {
+    try {
+      return await dbAll(`SELECT * FROM posts`);
+    } catch (error) {
+      throw new Error('Erro ao listar os posts!')
+    }
   }
 };
