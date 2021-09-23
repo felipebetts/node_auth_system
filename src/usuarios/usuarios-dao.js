@@ -14,10 +14,11 @@ module.exports = {
           INSERT INTO usuarios (
             nome,
             email,
-            senhaHash
-          ) VALUES (?, ?, ?)
+            senhaHash,
+            emailVerificado
+          ) VALUES (?, ?, ?, ?)
         `,
-        [usuario.nome, usuario.email, usuario.senhaHash]
+        [usuario.nome, usuario.email, usuario.senhaHash, usuario.emailVerificado]
       );
     } catch (error) {
       throw new InternalServerError('Erro ao adicionar o usuário!')
@@ -63,6 +64,16 @@ module.exports = {
       );
     } catch (error) {
       throw new Error('Erro ao listar usuários')
+    }
+  },
+
+  modificaEmailVerificado: async (usuario, emailVerificado) => {
+    try {
+      await dbRun(`
+        UPDATE usuarios SET emailVerificado = ? WHERE id = ?
+      `, [emailVerificado, usuario.id])
+    } catch (error) {
+      throw new InternalServerError('Erro ao modificar a verificação de email!')
     }
   },
 
